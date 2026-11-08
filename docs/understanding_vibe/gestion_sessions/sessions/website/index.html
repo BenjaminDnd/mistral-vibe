@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Système de Sessions - Mistral Vibe</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .command-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .command-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 16px rgba(88, 101, 242, 0.2);
+        }
+        
+        .command-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.95);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            max-width: 400px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .command-card:hover .command-tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .tooltip-header {
+            color: #5865F2;
+            margin-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(88, 101, 242, 0.3);
+            padding-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .tooltip-example {
+            background: rgba(88, 101, 242, 0.1);
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-top: 0.5rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+        }
+        
+        .diagram-box.index {
+            background: #E1BEE7;
+            color: #7B1FA2;
+        }
+        
+        @media (max-width: 768px) {
+            .command-tooltip {
+                position: fixed;
+                left: 50%;
+                transform: translateX(-50%);
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-history"></i>
+                <span>Sessions Vibe</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#modules" class="active"><i class="fas fa-puzzle-piece"></i> Modules</a></li>
+                <li><a href="#fonctionnalites"><i class="fas fa-star"></i> Fonctionnalités</a></li>
+                <li><a href="#architecture"><i class="fas fa-cogs"></i> Architecture</a></li>
+                <li><a href="#utilisation"><i class="fas fa-terminal"></i> Utilisation</a></li>
+                <li><a href="#stats"><i class="fas fa-chart-bar"></i> Stats</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-text">
+                <h1><i class="fas fa-history"></i> Système de Sessions<br><span>Mistral Vibe</span></h1>
+                <p class="subtitle">Persistance transparente et intelligente des conversations avec votre assistant IA</p>
+                
+                <div class="hero-description">
+                    <p>Le système de sessions de Mistral Vibe vous permet de <strong>ne jamais perdre le fil de vos conversations</strong>. Que vous fermiez votre terminal, changiez de projet ou souhaitiez explorer différents scénarios, vos échanges avec l'assistant sont <strong>automatiquement sauvegardés</strong> et <strong>instantanément accessibles</strong>. Reprenez exactement là où vous étiez, créez des branches pour tester des idées, ou organisez vos sessions selon vos besoins.</p>
+                </div>
+                
+                <div class="hero-stats">
+                    <div class="stat">
+                        <i class="fas fa-folder"></i>
+                        <span class="stat-number">16</span>
+                        <span class="stat-label">Modules</span>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-check-circle"></i>
+                        <span class="stat-number">276+</span>
+                        <span class="stat-label">Tests</span>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-code"></i>
+                        <span class="stat-number">~3.5K</span>
+                        <span class="stat-label">Lignes</span>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-star"></i>
+                        <span class="stat-number">8+</span>
+                        <span class="stat-label">Commandes</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="hero-diagram">
+                <div class="diagram-container">
+                    <div class="diagram-row">
+                        <div class="diagram-box user">
+                            <i class="fas fa-user"></i>
+                            <span>Utilisateur</span>
+                        </div>
+                    </div>
+                    <div class="diagram-arrow">↓</div>
+                    <div class="diagram-row">
+                        <div class="diagram-box cli">
+                            <i class="fas fa-terminal"></i>
+                            <span>Vibe CLI</span>
+                        </div>
+                    </div>
+                    <div class="diagram-arrow">↓</div>
+                    <div class="diagram-row">
+                        <div class="diagram-box logger">
+                            <i class="fas fa-save"></i>
+                            <span>SessionLogger</span>
+                        </div>
+                    </div>
+                    <div class="diagram-arrow">↓</div>
+                    <div class="diagram-row files">
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+                            <div class="diagram-box file" style="min-width: 140px;">
+                                <i class="fas fa-file-code"></i>
+                                <span>messages.jsonl</span>
+                            </div>
+                            <small style="color: #666; font-size: 0.7rem;">Historique</small>
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+                            <div class="diagram-box file" style="min-width: 120px;">
+                                <i class="fas fa-file-alt"></i>
+                                <span>meta.json</span>
+                            </div>
+                            <small style="color: #666; font-size: 0.7rem;">Métadonnées</small>
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+                            <div class="diagram-box index" style="min-width: 150px;">
+                                <i class="fas fa-database"></i>
+                                <span>.session_index.json</span>
+                            </div>
+                            <small style="color: #666; font-size: 0.7rem;">Index global</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modules Section -->
+    <section id="modules" class="section">
+        <div class="container">
+            <h2><i class="fas fa-puzzle-piece"></i> 6 Modules Principaux</h2>
+            <p class="section-description">Les 6 modules essentiels qui composent le cœur du système de sessions</p>
+            
+            <div class="modules-grid">
+                <div class="module-card">
+                    <div class="module-icon" style="--icon-color: #4CAF50">
+                        <i class="fas fa-save"></i>
+                    </div>
+                    <h3>SessionLogger</h3>
+                    <p>Enregistre en temps réel les messages et métadonnées de vos sessions actives, avec sauvegarde atomique pour éviter toute corruption.</p>
+                    <ul class="module-features">
+                        <li>Écriture atomique via fichiers temporaires</li>
+                        <li>Validation des données avant sauvegarde</li>
+                        <li>Gestion des erreurs intégrée</li>
+                        <li>Horodatage précis de chaque message</li>
+                    </ul>
+                </div>
+                
+                <div class="module-card">
+                    <div class="module-icon" style="--icon-color: #2196F3">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <h3>SessionLoader</h3>
+                    <p>Charge vos sessions existantes depuis le disque avec vérification d'intégrité complète pour garantir que vos données ne sont pas corrompues.</p>
+                    <ul class="module-features">
+                        <li>Désérialisation JSON sécurisée</li>
+                        <li>Vérification d'intégrité systématique</li>
+                        <li>Reconstruction complète du contexte</li>
+                        <li>Gestion des versions compatibles</li>
+                    </ul>
+                </div>
+                
+                <div class="module-card">
+                    <div class="module-icon" style="--icon-color: #FF9800">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h3>SessionIndex</h3>
+                    <p>Index centralisé et optimisé de toutes vos sessions pour un accès rapide et efficace, même avec des centaines de sessions.</p>
+                    <ul class="module-features">
+                        <li>Indexation automatique des nouvelles sessions</li>
+                        <li>Recherche rapide par ID, titre ou date</li>
+                        <li>Mise à jour incrémentale intelligente</li>
+                        <li>Cache optimisé pour les performances</li>
+                    </ul>
+                </div>
+                
+                <div class="module-card">
+                    <div class="module-icon" style="--icon-color: #9C27B0">
+                        <i class="fas fa-crosshairs"></i>
+                    </div>
+                    <h3>LastSessionPointer</h3>
+                    <p>Pointeur intelligent qui mémorise automatiquement votre dernière session par terminal (TTY) pour une reprise transparente.</p>
+                    <ul class="module-features">
+                        <li>Gestion par terminal (TTY) distinct</li>
+                        <li>Persistance entre les redémarrages</li>
+                        <li>Reprise automatique et transparente</li>
+                        <li>Compatible avec les multi-onglets</li>
+                    </ul>
+                </div>
+                
+                <div class="module-card">
+                    <div class="module-icon" style="--icon-color: #607D8B">
+                        <i class="fas fa-play"></i>
+                    </div>
+                    <h3>ResumeSessions</h3>
+                    <p>Interface principale qui permet de lister et de reprendre vos sessions précédemment sauvegardées avec une intégration CLI complète.</p>
+                    <ul class="module-features">
+                        <li>Liste complète des sessions disponibles</li>
+                        <li>Reprise par ID ou par titre</li>
+                        <li>Intégration native avec le CLI Vibe</li>
+                        <li>Filtrage intelligent des sessions</li>
+                    </ul>
+                </div>
+                
+                <div class="module-card">
+                    <div class="module-icon" style="--icon-color: #795548">
+                        <i class="fas fa-th-list"></i>
+                    </div>
+                    <h3>SavedSessions</h3>
+                    <p>Gère vos sessions sauvegardées avec des outils d'organisation avancés pour garder vos conversations bien structurées.</p>
+                    <ul class="module-features">
+                        <li>Épinglage des sessions importantes</li>
+                        <li>Renommage personnalisé des sessions</li>
+                        <li>Suppression sécurisée des sessions</li>
+                        <li>Tri automatique par date ou par nom</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <p style="text-align: center; color: var(--text-muted); margin-top: 2rem;">
+                <i class="fas fa-info-circle"></i> Le système contient 16 modules au total, mais ces 6 modules sont les principaux pour l'expérience utilisateur.
+            </p>
+        </div>
+    </section>
+
+    <!-- Fonctionnalités -->
+    <section id="fonctionnalites" class="section light-bg">
+        <div class="container">
+            <h2><i class="fas fa-star"></i> Fonctionnalités Clés</h2>
+            <p class="section-description">Découvrez comment le système de sessions améliore votre expérience avec Mistral Vibe</p>
+            
+            <div class="features-list">
+                <div class="feature-item">
+                    <div class="feature-number">1</div>
+                    <div class="feature-content">
+                        <h3><i class="fas fa-play-circle"></i> Reprise Automatique et Transparente</h3>
+                        <p>Le système détecte automatiquement votre dernier terminal (TTY) utilisé et charge la session correspondante. Vous reprenez exactement où vous vous êtes arrêté, <strong>sans aucune action manuelle</strong>. Même après avoir fermé votre terminal ou redémarré votre machine, votre conversation est là, prête à continuer.</p>
+                        <div class="feature-highlight">
+                            <i class="fas fa-lightbulb"></i> <strong>Zéro effort</strong> - tout est automatique
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-number">2</div>
+                    <div class="feature-content">
+                        <h3><i class="fas fa-code-branch"></i> Fork & Rewind - Exploration Libre</h3>
+                        <p>Testez plusieurs approches sans perdre votre travail. La commande <code>/fork</code> crée une copie de votre session à un point précis, vous permettant d'explorer un chemin différent. La commande <code>/rewind &lt;n&gt;</code> vous permet de revenir en arrière de n messages pour corriger ou reprendre une idée.</p>
+                        <div class="simple-diagram" style="margin: 1rem 0;">
+                            <div style="display: flex; gap: 1rem; align-items: center; justify-content: center; flex-wrap: wrap;">
+                                <div style="background: #e8f5e9; padding: 0.5rem 1rem; border-radius: 4px;">Session Principale</div>
+                                <div style="font-size: 1.5rem;">→</div>
+                                <div>
+                                    <div style="background: #fff3e0; padding: 0.5rem 1rem; border-radius: 4px; margin-bottom: 0.5rem;">Branche avec /fork</div>
+                                    <div style="background: #fff3e0; padding: 0.5rem 1rem; border-radius: 4px;">Autre branche</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="feature-highlight" style="margin-top: 1rem;">
+                            <i class="fas fa-flask"></i> <strong>Parfait pour l'expérimentation</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-number">3</div>
+                    <div class="feature-content">
+                        <h3><i class="fas fa-thumbtack"></i> Organisation Complète de Vos Sessions</h3>
+                        <p>Gérez efficacement toutes vos sessions avec des outils simples mais puissants. Épinglez vos sessions importantes pour un accès rapide, renommez-les pour plus de clarté, ou supprimez celles que vous n'utilisez plus. Le système vous permet de garder vos conversations organisées selon vos préférences.</p>
+                        <div class="feature-commands">
+                            <div class="command-badge"><code>/pin</code> <span>Épingler</span></div>
+                            <div class="command-badge"><code>/rename &lt;titre&gt;</code> <span>Renommer</span></div>
+                            <div class="command-badge"><code>/delete</code> <span>Supprimer</span></div>
+                            <div class="command-badge"><code>/resume</code> <span>Lister</span></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-number">4</div>
+                    <div class="feature-content">
+                        <h3><i class="fas fa-zap"></i> Performance et Robustesse</h3>
+                        <p>Le système est conçu pour être à la fois rapide et fiable. Grâce à un cache intelligent et une architecture bien pensée, toutes les opérations sont effectuées de manière quasi-instantanée. Les écritures atomiques garantissent que vos données ne sont jamais corrompues.</p>
+                        
+                        <div style="margin-top: 1rem;">
+                            <div class="feature-highlight" style="margin-bottom: 1rem;">
+                                <i class="fas fa-check-circle"></i> <strong>Écritures atomiques</strong> - Aucune perte de données
+                            </div>
+                            <div class="feature-highlight">
+                                <i class="fas fa-bolt"></i> <strong>Cache optimisé</strong> - Temps de réponse minimal
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-number">5</div>
+                    <div class="feature-content">
+                        <h3><i class="fas fa-history"></i> Historique Complet et Accessible</h3>
+                        <p>Toutes vos conversations sont sauvegardées dans un format structuré. Les fichiers <code>messages.jsonl</code> contiennent l'historique complet au format JSON Lines, tandis que <code>meta.json</code> stocke les métadonnées comme le titre, les timestamps, et l'ID de session.</p>
+                        <div style="background: rgba(88, 101, 242, 0.05); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                            <pre style="margin: 0; overflow-x: auto;"><code style="background: transparent; padding: 0;">~/.vibe/sessions/
+└── vibe_20241102_153021_abcd1234/
+    ├── messages.jsonl  # Historique des messages
+    ├── meta.json       # Metadonnees (titre, ID, etc.)
+    └── .session_index.json  # Index global des sessions</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture -->
+    <section id="architecture" class="section">
+        <div class="container">
+            <h2><i class="fas fa-cogs"></i> Architecture & Principes de Conception</h2>
+            <p class="section-description">Une conception robuste pour garantir fiabilité, performance et portabilité</p>
+            
+            <div class="principles-grid">
+                <div class="principle-card">
+                    <div class="principle-icon blue">
+                        <i class="fas fa-atomic"></i>
+                    </div>
+                    <h3>Atomicité des Opérations</h3>
+                    <p>Chaque écriture est effectuée de manière atomique via des fichiers temporaires + rename, garantissant que vos données sont toujours dans un état cohérent.</p>
+                    <div class="code-example">
+                        <pre><code># Pattern de sauvegarde atomique
+1. Ecrire dans fichier .tmp
+2. Valider contenu et integrite
+3. Renommer atomiquement vers final</code></pre>
+                    </div>
+                </div>
+                
+                <div class="principle-card">
+                    <div class="principle-icon green">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <h3>Sécurité Thread-Safe</h3>
+                    <p>Des verrous asyncio et threading protègent les opérations concurrentes pour éviter toute corruption.</p>
+                    <div class="code-example">
+                        <pre><code># Protection des operations
+async with self._save_lock:
+    await self._validate()
+    await self._save()</code></pre>
+                    </div>
+                </div>
+                
+                <div class="principle-card">
+                    <div class="principle-icon orange">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                    <h3>Cache Intelligent</h3>
+                    <p>Un mécanisme de cache avec réconciliation automatique réduit les temps d'accès tout en garantissant les données à jour.</p>
+                    <div class="code-example">
+                        <pre><code># Mecanisme de cache
+if session_id in cache:
+    return cache[session_id]
+else:
+    session = load_from_disk(session_id)
+    cache[session_id] = session</code></pre>
+                    </div>
+                </div>
+                
+                <div class="principle-card">
+                    <div class="principle-icon red">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Intégrité des Données</h3>
+                    <p>Validation Pydantic systématique avant chargement pour garantir que chaque session est valide.</p>
+                    <div class="code-example">
+                        <pre><code># Validation avec Pydantic
+class SessionMetadata(BaseModel):
+    session_id: str
+    title: str | None = None
+    start_time: str
+    # Validation automatique</code></pre>
+                    </div>
+                </div>
+                
+                <div class="principle-card">
+                    <div class="principle-icon purple">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h3>Portabilité Multi-OS</h3>
+                    <p>Fonctionne parfaitement sur Linux, macOS et Windows grâce à pathlib.</p>
+                    <div class="code-example">
+                        <pre><code># Chemin multi-plateforme
+from pathlib import Path
+session_dir = Path.home() / ".vibe/sessions"
+# Fonctionne partout</code></pre>
+                    </div>
+                </div>
+                
+                <div class="principle-card">
+                    <div class="principle-icon teal">
+                        <i class="fas fa-folder-tree"></i>
+                    </div>
+                    <h3>Structure des Fichiers</h3>
+                    <p>Organisation claire et intuitive sur le disque pour un accès facile.</p>
+                    <div class="code-example">
+                        <pre>📁 ~/.vibe/sessions/
+├── 📁 vibe_20241102_153021_abcd1234/
+│   ├── 📄 messages.jsonl  # Messages
+│   └── 📄 meta.json       # Metadonnees
+└── 📄 .session_index.json  # Index global</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Utilisation -->
+    <section id="utilisation" class="section light-bg">
+        <div class="container">
+            <h2><i class="fas fa-terminal"></i> Comment Utiliser les Sessions</h2>
+            <p class="section-description">Un guide pratique pour tirer le meilleur parti du système de sessions</p>
+            
+            <div class="features-list">
+                <div class="feature-item">
+                    <div class="feature-number">1</div>
+                    <div class="feature-content">
+                        <h3><i class="fas fa-play"></i> Démarrer une nouvelle conversation</h3>
+                        <p>Lancez simplement Vibe CLI. Une nouvelle session est automatiquement créée.</p>
+                        <div class="feature-highlight">
+                            <i class="fas fa-magic"></i> <strong>Automatique</strong> - Aucune commande requise
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-number">2</div>
+                    <div class="feature-content">
+                        <h3><i class="fas fa-list"></i> Voir vos sessions précédentes</h3>
+                        <p>Utilisez <code>/resume</code> pour afficher la liste complète de vos sessions sauvegardées avec leur titre, ID et date.</p>
+                        <div class="feature-highlight">
+                            <i class="fas fa-search"></i> <strong>Toutes vos sessions</strong> - à portée de main
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-number">3</div>
+                    <div class="feature-content">
+                        <h3><i class="fas fa-reply"></i> Reprendre une session existante</h3>
+                        <p>Avec <code>/resume &lt;id&gt;</code> ou <code>/resume &lt;titre&gt;</code>, reprenez une conversation précédente exactement là où vous l'aviez laissée.</p>
+                        <div class="feature-highlight">
+                            <i class="fas fa-clock"></i> <strong>Instantané</strong> - Votre contexte est restauré immédiatement
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-number">4</div>
+                    <div class="feature-content">
+                        <h3><i class="fas fa-edit"></i> Organiser vos sessions</h3>
+                        <p>Personnalisez avec <code>/rename &lt;titre&gt;</code> pour donner un nom explicite. Utilisez <code>/pin</code> pour marquer/désépingler.</p>
+                        <div style="margin-top: 1rem;">
+                            <div class="command-badge"><code>/rename "Mon Projet"</code></div>
+                            <div class="command-badge"><code>/pin</code></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-number">5</div>
+                    <div class="feature-content">
+                        <h3><i class="fas fa-code-branch"></i> Explorer des alternatives</h3>
+                        <p>Utilisez <code>/fork</code> pour créer une copie de votre session actuelle. Utilisez <code>/rewind &lt;n&gt;</code> pour revenir en arrière de n messages.</p>
+                        <div style="margin-top: 1rem;">
+                            <div class="command-badge"><code>/fork</code></div>
+                            <div class="command-badge"><code>/rewind 5</code></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-number">6</div>
+                    <div class="feature-content">
+                        <h3><i class="fas fa-trash"></i> Nettoyer vos sessions</h3>
+                        <p>Supprimez les sessions inutiles avec <code>/delete</code>. <strong>Attention</strong> : cette opération est irréversible.</p>
+                        <div class="feature-highlight" style="background: rgba(231, 76, 60, 0.1); border: 1px solid rgba(231, 76, 60, 0.2);">
+                            <i class="fas fa-exclamation-triangle"></i> <strong>Suppression définitive</strong> - Vérifiez avant
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistiques -->
+    <section id="stats" class="section dark">
+        <div class="container">
+            <h2><i class="fas fa-chart-line"></i> Statistiques du Système</h2>
+            <p class="section-description">Les chiffres clés qui montrent l'ampleur et la qualité du système de sessions</p>
+            
+            <div class="stats-overview">
+                <div class="stat-big">
+                    <i class="fas fa-folder"></i>
+                    <span class="value">16</span>
+                    <span class="label">Modules au total</span>
+                </div>
+                <div class="stat-big">
+                    <i class="fas fa-layer-group"></i>
+                    <span class="value">6</span>
+                    <span class="label">Modules principaux</span>
+                </div>
+                <div class="stat-big">
+                    <i class="fas fa-check-circle"></i>
+                    <span class="value">276+</span>
+                    <span class="label">Tests unitaires</span>
+                </div>
+                <div class="stat-big">
+                    <i class="fas fa-code"></i>
+                    <span class="value">~3.5K</span>
+                    <span class="label">Lignes de code</span>
+                </div>
+            </div>
+            
+            <div class="commands-section">
+                <h4><i class="fas fa-terminal"></i> Commandes CLI Disponibles</h4>
+                <p style="color: var(--text-muted-light); margin-bottom: 1rem;">
+                    Passez votre souris sur une commande pour voir un exemple d'utilisation :
+                </p>
+                <div class="commands-grid">
+                    <div class="command-card">
+                        <div class="command-code"><code>/new</code></div>
+                        <div class="command-desc">Créer une nouvelle session</div>
+                        <div class="command-tooltip">
+                            <div class="tooltip-header"><i class="fas fa-plus"></i> /new</div>
+                            <p>Crée une nouvelle session vierge.</p>
+                            <div class="tooltip-example">Utilisateur: /new<br>Vibe: [Nouvelle session créée - ID: abcd1234]</div>
+                        </div>
+                    </div>
+                    
+                    <div class="command-card">
+                        <div class="command-code"><code>/resume</code></div>
+                        <div class="command-desc">Lister toutes les sessions</div>
+                        <div class="command-tooltip">
+                            <div class="tooltip-header"><i class="fas fa-list"></i> /resume</div>
+                            <p>Affiche la liste complète de vos sessions.</p>
+                            <div class="tooltip-example">1. "Mon Projet" (ID: abcd1234)<br>   - 2024-11-02 15:30 ✓ Épinglée<br><br>2. Sans titre (ID: wxyz6789)<br>   - 2024-11-01 10:20</div>
+                        </div>
+                    </div>
+                    
+                    <div class="command-card">
+                        <div class="command-code"><code>/resume &lt;id&gt;</code></div>
+                        <div class="command-desc">Reprendre une session</div>
+                        <div class="command-tooltip">
+                            <div class="tooltip-header"><i class="fas fa-reply"></i> /resume abcd1234</div>
+                            <p>Reprends la session avec l'ID spécifié.</p>
+                            <div class="tooltip-example">Utilisateur: /resume abcd1234<br>Vibe: [Session "Mon Projet" chargée]<br>         15 messages précédents restaurés</div>
+                        </div>
+                    </div>
+                    
+                    <div class="command-card">
+                        <div class="command-code"><code>/rename &lt;titre&gt;</code></div>
+                        <div class="command-desc">Renommer la session</div>
+                        <div class="command-tooltip">
+                            <div class="tooltip-header"><i class="fas fa-edit"></i> /rename "Analyse Projet"</div>
+                            <p>Renomme la session actuelle.</p>
+                            <div class="tooltip-example">Utilisateur: /rename "Analyse Projet"<br>Vibe: Session renommée en "Analyse Projet"</div>
+                        </div>
+                    </div>
+                    
+                    <div class="command-card">
+                        <div class="command-code"><code>/fork</code></div>
+                        <div class="command-desc">Créer une branche</div>
+                        <div class="command-tooltip">
+                            <div class="tooltip-header"><i class="fas fa-code-branch"></i> /fork</div>
+                            <p>Crée une copie pour tester une autre approche.</p>
+                            <div class="tooltip-example">Utilisateur: /fork<br>Vibe: [Session forkée]<br>      Nouvelle ID: efgh5678<br>      (Basée sur: abcd1234)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="command-card">
+                        <div class="command-code"><code>/rewind &lt;n&gt;</code></div>
+                        <div class="command-desc">Remonter de n messages</div>
+                        <div class="command-tooltip">
+                            <div class="tooltip-header"><i class="fas fa-backward"></i> /rewind 5</div>
+                            <p>Remonte de 5 messages dans l'historique.</p>
+                            <div class="tooltip-example">Utilisateur: /rewind 5<br>Vibe: Remonté de 5 messages<br>      (12 messages avant cette position)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="command-card">
+                        <div class="command-code"><code>/pin</code></div>
+                        <div class="command-desc">Épingler/désépingler</div>
+                        <div class="command-tooltip">
+                            <div class="tooltip-header"><i class="fas fa-thumbtack"></i> /pin</div>
+                            <p>Épingle ou désépingle la session actuelle.</p>
+                            <div class="tooltip-example">1ère utilisation:<br>Vibe: Session épinglée ✓<br><br>2ème utilisation:<br>Vibe: Session désépinglée</div>
+                        </div>
+                    </div>
+                    
+                    <div class="command-card">
+                        <div class="command-code"><code>/delete</code></div>
+                        <div class="command-desc">Supprimer la session</div>
+                        <div class="command-tooltip">
+                            <div class="tooltip-header"><i class="fas fa-trash"></i> /delete</div>
+                            <p>⚠️ Supprime définitivement la session actuelle.</p>
+                            <div class="tooltip-example">Utilisateur: /delete<br>Vibe: Êtes-vous sûr ? (o/n)<br>Utilisateur: o<br>Vibe: [Session supprimée: abcd1234]</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <i class="fas fa-history"></i>
+                    <span>Sessions Vibe</span>
+                </div>
+                <p>Système de persistance des sessions pour Mistral Vibe</p>
+                <p style="margin-top: 1rem; color: var(--text-muted);">
+                    <i class="fas fa-calendar"></i> Version 1.0.0 - Novembre 2024
+                </p>
+                <p style="color: var(--text-muted); margin-top: 0.5rem;">
+                    <i class="fas fa-code"></i> Built with ❤️ for Mistral Vibe
+                </p>
+            </div>
+            <div class="footer-links">
+                <a href="https://github.com/rrobbes/mistral-vibe" target="_blank" class="footer-link">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <button class="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Retour en haut">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script src="script.js"></script>
+</body>
+</html>
